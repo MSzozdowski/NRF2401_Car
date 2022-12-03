@@ -1,0 +1,13 @@
+/*
+ * clock.h
+ *
+ *  Created on: Nov 26, 2022
+ *      Author: stasz
+ */
+
+#ifndef INC_CLOCK_H_
+#define INC_CLOCK_H_
+
+void Clock_100us_Init(TIM_HandleTypeDef *htim);
+
+#endif /* INC_CLOCK_H_ */

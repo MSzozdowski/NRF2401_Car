@@ -1,0 +1,14 @@
+/*
+ * clock.c
+ *
+ *  Created on: Nov 26, 2022
+ *      Author: stasz
+ */
+
+#include "main.h"
+#include "clock.h"
+
+void Clock_100us_Init(TIM_HandleTypeDef *htim)
+{
+	  HAL_TIM_Base_Start_IT(&htim);
+}
