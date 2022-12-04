@@ -23,6 +23,8 @@ char nrf_mode;
 
 static uint8_t addr_p0_backup[NRF24_ADD_WIDTH];
 
+
+
 void NRF_Write(uint8_t *data, uint8_t length)
 {
 	HAL_SPI_Transmit(NRF_spi, data, length, 1000);
@@ -276,7 +278,7 @@ void NRF_TX_Mode(void)
 	NRF_FlushTX();
 }
 
-void NRF24_RX_Mode(void)
+void NRF_RX_Mode(void)
 {
 	uint8_t config = NRF_ReadConfigRegister();
 	NRF_SetRXAddress(0, addr_p0_backup);
@@ -306,17 +308,19 @@ void NRF_Init(SPI_HandleTypeDef *hspi, char mode)
 	NRF_SetChannel(NRF24_CHANNEL);
 	NRF_SetAddressWidth(NRF24_ADD_WIDTH);
 
-	NRF_SetRXAddress(0, (uint8_t*)"Nad");
+	NRF_SetRXAddress(NRF24_PIPE_NUMBER, (uint8_t*)"Nad");
 	NRF_SetTXAddress((uint8_t*)"Odb");
 
 	nrf_mode = mode;
 	if(nrf_mode == 't')
 	{
 		NRF_TX_Mode();
+		printf("Configured as transmitter \r\n");
 	}
 	else if (nrf_mode == 'r')
 	{
-		NRF24_RX_Mode();
+		NRF_RX_Mode();
+		printf("Configured as receiver \r\n");
 	}
 	else
 		printf("No mode selected \r\n");
@@ -381,6 +385,7 @@ void NRF_process(uint8_t message)
 		if((HAL_GetTick() - last_tick >= 1000) && (status & (1 << NRF24_TX_DS)) && (fifo_status & (1 << NRF24_TX_EMPTY)))
 		{
 			printf("Correct transmission \r\n");
+			NRF_CE_LOW
 			NRF_State = NRF_STANBY1;
 		}
 		break;

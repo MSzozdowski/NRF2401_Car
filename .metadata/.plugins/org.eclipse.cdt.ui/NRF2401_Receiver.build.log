@@ -1,10 +1,10 @@
-21:03:38 **** Incremental Build of configuration Debug for project NRF2401_Receiver ****
+21:55:29 **** Incremental Build of configuration Debug for project NRF2401_Receiver ****
 make -j12 all 
 arm-none-eabi-size   NRF2401_Receiver.elf 
    text	   data	    bss	    dec	    hex	filename
-  13868	    120	   1800	  15788	   3dac	NRF2401_Receiver.elf
+  15624	    120	   1872	  17616	   44d0	NRF2401_Receiver.elf
 Finished building: default.size.stdout
  
 
-21:03:39 Build Finished. 0 errors, 0 warnings. (took 151ms)
+21:55:29 Build Finished. 0 errors, 0 warnings. (took 144ms)
 

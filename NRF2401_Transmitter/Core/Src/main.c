@@ -124,8 +124,8 @@ int main(void)
 	  NRF_process(i);
 	  if(HAL_GetTick() - last_tick >= 1000)
 	  {
-		  i%=9;
 		  i++;
+		  i%=9;
 		  last_tick = HAL_GetTick();
 	  }
 

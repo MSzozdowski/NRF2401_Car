@@ -7,6 +7,7 @@
 
 #ifndef INC_NRF2401_NRF2401_DEFS_H_
 #define INC_NRF2401_NRF2401_DEFS_H_
+
 //
 //Config
 //
@@ -24,8 +25,8 @@
 #define NRF24_POWER_ON	1
 #define NRF24_POWER_OFF	0
 
-#define NRF24_TRANSMITTER 0
-#define NRF24_RECEIVER	1
+//#define NRF24_TRANSMITTER 0
+//#define NRF24_RECEIVER	1
 
 
 //

@@ -1,0 +1,3 @@
+../Core/Src/clock.c:15:6:Clock_Init	16	static
+../Core/Src/clock.c:22:10:Clock_GetTick	4	static
+../Core/Src/clock.c:27:6:HAL_TIM_PeriodElapsedCallback	16	static
