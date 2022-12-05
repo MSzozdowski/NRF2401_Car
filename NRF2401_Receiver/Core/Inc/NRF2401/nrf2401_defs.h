@@ -31,6 +31,7 @@
 
 //
 #define NRF_START_UP_TIME 2000
+#define NRF_SETTING_TIME 200
 // Registers
 //
 #define NRF24_CONFIG		0x00

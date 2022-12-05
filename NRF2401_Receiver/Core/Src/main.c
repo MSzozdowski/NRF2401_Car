@@ -51,9 +51,9 @@
 
 /* USER CODE BEGIN PV */
 
-uint8_t Nrf24_Message[NRF24_PAYLOAD_SIZE];
+/*uint8_t Nrf24_Message[NRF24_PAYLOAD_SIZE];
 uint8_t Message[32];
-uint8_t MessageLength;
+uint8_t MessageLength;*/
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -112,23 +112,25 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-  NRF_Init(&hspi1);
+  Clock_Init(&htim1);
+  NRF_Init(&hspi1, 'r');
 
-  NRF_SetRXAddress(0, (uint8_t*)"Odb");
+  /*NRF_SetRXAddress(0, (uint8_t*)"Odb");
   NRF_SetTXAddress((uint8_t*)"Nad");
-  NRF_RX_Mode();
+  NRF_RX_Mode();*/
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(NRF_DataAvailable())
+	  NRF_process(0);
+	  /*if(NRF_DataAvailable())
 	  {
 		  NRF_ReadRXPaylaod(Nrf24_Message);
 		  MessageLength = sprintf((char*)Message, "%c\n\r", Nrf24_Message[0]);
 		  HAL_UART_Transmit(&huart2, Message, MessageLength, 1000);
-	  }
+	  }*/
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

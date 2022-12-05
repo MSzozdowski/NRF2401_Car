@@ -1785,9 +1785,9 @@ __STATIC_FORCEINLINE void __disable_irq(void)
 	...
 
 08001218 <NRF_Write>:
+char nrf_mode;
+
 static uint8_t addr_p0_backup[NRF24_ADD_WIDTH];
-
-
 
 void NRF_Write(uint8_t *data, uint8_t length)
 {

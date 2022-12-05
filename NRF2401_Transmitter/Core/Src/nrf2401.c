@@ -23,8 +23,6 @@ char nrf_mode;
 
 static uint8_t addr_p0_backup[NRF24_ADD_WIDTH];
 
-
-
 void NRF_Write(uint8_t *data, uint8_t length)
 {
 	HAL_SPI_Transmit(NRF_spi, data, length, 1000);
