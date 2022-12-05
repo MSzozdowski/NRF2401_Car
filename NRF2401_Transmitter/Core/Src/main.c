@@ -37,7 +37,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define MESSAGE_BUFF_LEN 33 // 32 payload + \0
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -48,11 +48,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-volatile uint8_t nrf24_rx_flag, nrf24_tx_flag, nrf24_mr_flag;
-uint8_t Nrf24_Message[MESSAGE_BUFF_LEN];
-uint8_t Message[MESSAGE_BUFF_LEN];
-uint8_t MessageLength;
-uint32_t Numbers[9] = { 1, 12, 123, 1234, 12345, 123456, 1234567, 12345678, 123456789};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -125,7 +121,7 @@ int main(void)
 	  if(HAL_GetTick() - last_tick >= 1000)
 	  {
 		  i++;
-		  i%=9;
+		  i%=10;
 		  last_tick = HAL_GetTick();
 	  }
 

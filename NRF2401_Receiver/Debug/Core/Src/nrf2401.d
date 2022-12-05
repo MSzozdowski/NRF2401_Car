@@ -26,7 +26,7 @@ Core/Src/nrf2401.o: ../Core/Src/nrf2401.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
  ../Core/Inc/NRF2401/nrf2401.h ../Core/Inc/NRF2401/nrf2401_defs.h \
- ../Core/Inc/clock.h ../Core/Inc/usart.h ../Core/Inc/main.h
+ ../Core/Inc/clock.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
@@ -57,5 +57,3 @@ Core/Src/nrf2401.o: ../Core/Src/nrf2401.c ../Core/Inc/main.h \
 ../Core/Inc/NRF2401/nrf2401.h:
 ../Core/Inc/NRF2401/nrf2401_defs.h:
 ../Core/Inc/clock.h:
-../Core/Inc/usart.h:
-../Core/Inc/main.h:

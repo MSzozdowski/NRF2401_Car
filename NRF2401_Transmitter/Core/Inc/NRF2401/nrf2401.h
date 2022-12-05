@@ -14,10 +14,6 @@
 #define NRF_CSN_LOW	  	HAL_GPIO_WritePin(NRF_CSN_GPIO_Port, NRF_CSN_Pin, GPIO_PIN_RESET);
 #define NRF_CSN_HIGH  	HAL_GPIO_WritePin(NRF_CSN_GPIO_Port, NRF_CSN_Pin, GPIO_PIN_SET);
 
-void NRF_Init(SPI_HandleTypeDef *hspi, char mode);
-void NRF_process(uint8_t message);
-
-
 typedef enum
 {
 	NRF_NO_ERROR,
@@ -38,5 +34,8 @@ typedef enum{
 	NRF_RX_MODE,
 	NRF_IDLE
 }NRF_State_t;
+
+void NRF_Init(SPI_HandleTypeDef *hspi, char mode);
+void NRF_process(uint8_t message);
 
 #endif /* INC_NRF2401_NRF2401_H_ */
