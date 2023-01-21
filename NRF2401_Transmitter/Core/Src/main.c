@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -28,6 +29,7 @@
 #include "NRF2401/nrf2401.h"
 #include "clock.h"
 #include "stdio.h"
+#include "joystick.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,7 +50,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+T_Joystick Acceleration;
+T_Joystick Direction;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -65,6 +68,8 @@ int __io_putchar(int ch)
     HAL_UART_Transmit(&huart2, (uint8_t*)&ch, 1, 1000);
     return 1;
 }
+
+//void SetChannel(uint32_t Channel);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -103,12 +108,16 @@ int main(void)
   MX_USART2_UART_Init();
   MX_SPI1_Init();
   MX_TIM1_Init();
+  MX_ADC1_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
   Clock_Init(&htim1);
   NRF_Init(&hspi1, 't');
+  JoystickInit(&Acceleration, &hadc1, ADC_CHANNEL_8);
+  JoystickInit(&Direction, &hadc1, ADC_CHANNEL_4);
+
   uint8_t i = 0;
   uint32_t last_tick = HAL_GetTick();
   /* USER CODE END 2 */
@@ -120,8 +129,9 @@ int main(void)
 	  NRF_process(i);
 	  if(HAL_GetTick() - last_tick >= 1000)
 	  {
+		  printf("acceleration = %d \t direction = %d  \r\n", Joystick_GetValue(&Acceleration), Joystick_GetValue(&Direction));
 		  i++;
-		  i%=10;
+		  i%=5;
 		  last_tick = HAL_GetTick();
 	  }
 
