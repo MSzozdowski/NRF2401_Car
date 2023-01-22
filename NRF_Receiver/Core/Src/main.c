@@ -117,6 +117,7 @@ int main(void)
   NRF_Init(&hspi1, 'r');
 
   DRV8835_Init(&htim3, TIM_CHANNEL_1, TIM_CHANNEL_2);
+  uint8_t rx_data[2] = {0, 0};
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -124,7 +125,7 @@ int main(void)
   while (1)
   {
 
-	  for(uint8_t i=0; i<100; i++)
+	  /*for(uint8_t i=0; i<100; i++)
 	  {
 		  DRV8835_RunRightMotor(DRV8835_FORWARD, i);
 		  DRV8835_RunLeftMotor(DRV8835_FORWARD, i);
@@ -136,8 +137,9 @@ int main(void)
 		  DRV8835_RunRightMotor(DRV8835_REVERSE, i);
 		  DRV8835_RunLeftMotor(DRV8835_REVERSE, i);
 		  HAL_Delay(10);
-	  }
-	  //NRF_process(0);
+	  }*/
+
+	  NRF_process(rx_data);
 
     /* USER CODE END WHILE */
 

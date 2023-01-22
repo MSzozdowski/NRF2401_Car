@@ -62,7 +62,7 @@ static void NRF_TX_Mode(void);
 static void NRF_FlushRX(void);
 static void NRF_FlushTX(void);
 
-static void NRF_TXPayload(uint8_t *data, uint8_t size);
+static void NRF_TXPayload(uint8_t *data );
 static void NRF_ReadRXPaylaod(uint8_t *data);
 
 static uint8_t NRF_DataAvailable(void);
@@ -102,7 +102,7 @@ void NRF_Init(SPI_HandleTypeDef *hspi, char mode)
 		printf("No mode selected \n");
 }
 
-void NRF_process(uint8_t message)
+void NRF_process(uint8_t* message)
 {
 	if(NRF_Faults != NRF_NO_ERROR)
 		NRF_State = NRF_IDLE;
@@ -129,7 +129,7 @@ void NRF_process(uint8_t message)
 			if(message_length != NRF24_PAYLOAD_SIZE)
 				NRF_Faults = NRF_DIFFRENT_MESSAGE_SIZE;
 
-			NRF_TXPayload(tx_buffer, message_length);
+			NRF_TXPayload(tx_buffer);
 
 			NRF_CE_HIGH
 			NRF_State = NRF_TX_SETTING;
@@ -179,12 +179,14 @@ void NRF_process(uint8_t message)
 		if(NRF_DataAvailable())
 		{
 			NRF_ReadRXPaylaod(rx_buffer);
-			printf("Received message: %c \n", rx_buffer[0]);
+			for(uint8_t i = 0; i < NRF24_PAYLOAD_SIZE; i++)
+				printf("Received message: %d \t", rx_buffer[i]);
+			printf("\n");
 		}
 		break;
 
 	case NRF_IDLE:
-			HAL_Delay(2000);
+			HAL_Delay(1000);
 			switch(NRF_Faults)
 			{
 				case NRF_NO_MODE:
@@ -450,7 +452,7 @@ static void NRF_FlushTX(void)
 	NRF_SendCommand(NRF24_CMD_FLUSH_TX);
 }
 
-static void NRF_TXPayload(uint8_t *data, uint8_t size)
+static void NRF_TXPayload(uint8_t *data)
 {
 	NRF_WriteRegisters(NRF24_CMD_W_TX_PAYLOAD, data, NRF24_PAYLOAD_SIZE);
 }

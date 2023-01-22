@@ -40,6 +40,8 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
+#define MESSAGE_LENGTH 2
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -119,6 +121,7 @@ int main(void)
   JoystickInit(&Direction, &hadc1, ADC_CHANNEL_4);
 
   uint8_t i = 0;
+  uint8_t tx_data[MESSAGE_LENGTH];
   uint32_t last_tick = HAL_GetTick();
   /* USER CODE END 2 */
 
@@ -126,10 +129,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  NRF_process(i);
+	  NRF_process(tx_data, MESSAGE_LENGTH);
 	  if(HAL_GetTick() - last_tick >= 1000)
 	  {
-		  printf("acceleration = %d \t direction = %d  \r\n", Joystick_GetValue(&Acceleration), Joystick_GetValue(&Direction));
+		  tx_data[0] = Joystick_GetValue(&Acceleration);
+		  tx_data[1] = Joystick_GetValue(&Direction);
+		  printf("acceleration = %d \t direction = %d  \r\n", tx_data[0], tx_data[1]);
 		  i++;
 		  i%=5;
 		  last_tick = HAL_GetTick();

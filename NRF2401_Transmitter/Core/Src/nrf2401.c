@@ -10,13 +10,14 @@
 #include "NRF2401/nrf2401_defs.h"
 #include "clock.h"
 #include "stdio.h"
+#include "string.h"
 
 SPI_HandleTypeDef *NRF_spi;
 
 NRF_State_t NRF_State = NRF_POWER_DOWN;
 NRF_Faults_t NRF_Faults = NRF_NO_ERROR;
 
-uint8_t tx_buffer[NRF24_PAYLOAD_SIZE + 1];
+uint8_t tx_buffer[NRF24_PAYLOAD_SIZE /*+ 1*/];
 uint8_t rx_buffer[NRF24_PAYLOAD_SIZE];
 
 uint32_t lastTick100us, last_tick;
@@ -62,10 +63,12 @@ static void NRF_TX_Mode(void);
 static void NRF_FlushRX(void);
 static void NRF_FlushTX(void);
 
-static void NRF_TXPayload(uint8_t *data, uint8_t size);
+static void NRF_TXPayload(uint8_t *data);
 static void NRF_ReadRXPaylaod(uint8_t *data);
 
 static uint8_t NRF_DataAvailable(void);
+
+static void NRF_BufferCopy(uint8_t *buffer);
 
 void NRF_Init(SPI_HandleTypeDef *hspi, char mode)
 {
@@ -102,7 +105,7 @@ void NRF_Init(SPI_HandleTypeDef *hspi, char mode)
 		printf("No mode selected \r\n");
 }
 
-void NRF_process(uint8_t message)
+void NRF_process(uint8_t* message, uint8_t message_length)
 {
 	if(NRF_Faults != NRF_NO_ERROR)
 		NRF_State = NRF_IDLE;
@@ -124,12 +127,14 @@ void NRF_process(uint8_t message)
 		lastTick100us = Clock_GetTick();
 		if(nrf_mode == 't')
 		{
-			uint8_t message_length = sprintf((char *) tx_buffer, "%d", message);
+			//uint8_t message_length = sprintf((char *) tx_buffer, "%d", message);
 
 			if(message_length != NRF24_PAYLOAD_SIZE)
 				NRF_Faults = NRF_DIFFRENT_MESSAGE_SIZE;
+			else
+				NRF_BufferCopy(message);
 
-			NRF_TXPayload(tx_buffer, message_length);
+			NRF_TXPayload(tx_buffer);
 
 			NRF_CE_HIGH
 			NRF_State = NRF_TX_SETTING;
@@ -183,10 +188,7 @@ void NRF_process(uint8_t message)
 		break;
 
 	case NRF_IDLE:
-		if(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == GPIO_PIN_RESET)
-		{
-			HAL_Delay(20);
-			while(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == GPIO_PIN_RESET){};
+			HAL_Delay(1000);
 			switch(NRF_Faults)
 			{
 				case NRF_NO_MODE:
@@ -208,7 +210,6 @@ void NRF_process(uint8_t message)
 				default:
 				break;
 			}
-		}
 	}
 }
 
@@ -453,7 +454,7 @@ static void NRF_FlushTX(void)
 	NRF_SendCommand(NRF24_CMD_FLUSH_TX);
 }
 
-static void NRF_TXPayload(uint8_t *data, uint8_t size)
+static void NRF_TXPayload(uint8_t *data)
 {
 	NRF_WriteRegisters(NRF24_CMD_W_TX_PAYLOAD, data, NRF24_PAYLOAD_SIZE);
 }
@@ -476,4 +477,10 @@ static uint8_t NRF_DataAvailable(void)
 		return 1;
 	}
 	return 0;
+}
+
+static void NRF_BufferCopy(uint8_t* buffer)
+{
+	for(uint8_t i = 0; i < NRF24_PAYLOAD_SIZE; i++)
+		tx_buffer[i] = buffer[i];
 }

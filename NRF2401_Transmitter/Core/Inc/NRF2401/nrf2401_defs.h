@@ -17,7 +17,7 @@
 #define NRF24_ADD_WIDTH 3				//00-3bytes 10-4bytes 11-5bytes
 #define NRF24_RETRANSMISSION_DELAY 4 	//0-15 each value is 250uS
 #define NRF24_RETRANMISSION_REPEAT 7 	//0-15 times
-#define NRF24_PAYLOAD_SIZE 1			//0-32
+#define NRF24_PAYLOAD_SIZE 2			//0-32
 
 #define CRC_ENABLED 1
 #define CRC_DISABLED 0
