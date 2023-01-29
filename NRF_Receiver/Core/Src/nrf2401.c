@@ -25,6 +25,9 @@ char nrf_mode;
 
 static uint8_t addr_p0_backup[NRF24_ADD_WIDTH];
 
+uint8_t message_received = 0;
+uint8_t message_transmitted = 0;
+
 static void NRF_Read(uint8_t *Data, uint8_t Length);
 static void NRF_Write(uint8_t *Data, uint8_t Length);
 
@@ -67,6 +70,18 @@ static void NRF_ReadRXPaylaod(uint8_t *data);
 
 static uint8_t NRF_DataAvailable(void);
 
+uint8_t NRF_IsMessageReceived(void)
+{
+	if(message_received)
+		return 1;
+	else
+		return 0;
+}
+
+void NRF_ReceiveNextMessage()
+{
+	message_received = 0;
+}
 void NRF_Init(SPI_HandleTypeDef *hspi, char mode)
 {
 	NRF_spi = hspi;
@@ -180,8 +195,12 @@ void NRF_process(uint8_t* message)
 		{
 			NRF_ReadRXPaylaod(rx_buffer);
 			for(uint8_t i = 0; i < NRF24_PAYLOAD_SIZE; i++)
-				printf("Received message: %d \t", rx_buffer[i]);
-			printf("\n");
+			{
+				//printf("Received message: %d \t", rx_buffer[i]);
+				message[i] = rx_buffer[i];
+			}
+			message_received = 1;
+			//printf("\n");
 		}
 		break;
 

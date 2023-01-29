@@ -35,6 +35,8 @@ typedef enum{
 	NRF_IDLE
 }NRF_State_t;
 
+uint8_t NRF_IsMessageReceived(void);
+void NRF_ReceiveNextMessage();
 void NRF_Init(SPI_HandleTypeDef *hspi, char mode);
 void NRF_process(uint8_t* message);
 

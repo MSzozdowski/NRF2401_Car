@@ -31,6 +31,9 @@
 #include "NRF2401/nrf2401_defs.h"
 #include "clock.h"
 #include "drv8835.h"
+#include "frame.h"
+#include "putchar.h"
+#include "lights.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -41,6 +44,12 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define MESSAGE_LENGTH 3
+
+#define ACCELERATION_VALUE 0
+#define TURNING_VALUE 1
+#define LIGHTS_STATE 2
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -51,23 +60,16 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+T_Frame frame = ACCELERATION;
 
+uint8_t rx_data[MESSAGE_LENGTH];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
-int __io_putchar(int ch)
-{
-    if (ch == '\n') {
-        uint8_t ch2 = '\r';
-        HAL_UART_Transmit(&huart1, &ch2, 1, 1000);
-    }
 
-    HAL_UART_Transmit(&huart1, (uint8_t*)&ch, 1, 1000);
-    return 1;
-}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -117,7 +119,6 @@ int main(void)
   NRF_Init(&hspi1, 'r');
 
   DRV8835_Init(&htim3, TIM_CHANNEL_1, TIM_CHANNEL_2);
-  uint8_t rx_data[2] = {0, 0};
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -140,7 +141,30 @@ int main(void)
 	  }*/
 
 	  NRF_process(rx_data);
+	  if(NRF_IsMessageReceived())
+	  {
+		  switch(frame)
+		  {
+		  	  case ACCELERATION:
+		  		  //rx_data[0]
+		  		  frame = VEERING;
+		  		  continue;
 
+		  	  case VEERING:
+		  		  //rx_data[1]
+		  		  frame = LIGHTS;
+		  		  continue;
+
+		  	  case LIGHTS:
+		  		  Lights_SetState(LIGHTS_GPIO_Port, LIGHTS_Pin, rx_data[LIGHTS_STATE]);
+		  		  frame = ACCELERATION;
+		  		  break;
+		  }
+		  for(uint8_t i=0; i<MESSAGE_LENGTH; i++)
+			  printf("RX DATA: %d \t", rx_data[i]);
+		  printf("\n");
+		  NRF_ReceiveNextMessage();
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
