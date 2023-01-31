@@ -29,11 +29,16 @@
 /* USER CODE BEGIN Includes */
 #include "NRF2401/nrf2401.h"
 #include "NRF2401/nrf2401_defs.h"
-#include "clock.h"
+#include "SSD1306_OLED.h"
+#include "GFX_BW.h"
+#include "fonts/fonts.h"
+#include "lsm303dlhc.h"
 #include "drv8835.h"
+#include "clock.h"
 #include "frame.h"
 #include "putchar.h"
 #include "lights.h"
+#include "battery.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -47,7 +52,7 @@
 #define MESSAGE_LENGTH 3
 
 #define ACCELERATION_VALUE 0
-#define TURNING_VALUE 1
+#define VEER_VALUE 1
 #define LIGHTS_STATE 2
 
 /* USER CODE END PD */
@@ -60,9 +65,15 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-T_Frame frame = ACCELERATION;
+T_Frame frame = MOTORS;
 
 uint8_t rx_data[MESSAGE_LENGTH];
+
+char oled_message[32];
+
+double battery_voltage;
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -119,47 +130,41 @@ int main(void)
   NRF_Init(&hspi1, 'r');
 
   DRV8835_Init(&htim3, TIM_CHANNEL_1, TIM_CHANNEL_2);
+
+  Battery_Init(&hadc1, ADC_CHANNEL_10);
+
+  SSD1306_Init(&hi2c2);
+  GFX_SetFont(font_8x5);
+  SSD1306_Clear(BLACK);
+  SSD1306_Display();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
-	  /*for(uint8_t i=0; i<100; i++)
-	  {
-		  DRV8835_RunRightMotor(DRV8835_FORWARD, i);
-		  DRV8835_RunLeftMotor(DRV8835_FORWARD, i);
-		  HAL_Delay(10);
-	  }
-
-	  for(uint8_t i=100; i>0; i--)
-	  {
-		  DRV8835_RunRightMotor(DRV8835_REVERSE, i);
-		  DRV8835_RunLeftMotor(DRV8835_REVERSE, i);
-		  HAL_Delay(10);
-	  }*/
-
 	  NRF_process(rx_data);
 	  if(NRF_IsMessageReceived())
 	  {
 		  switch(frame)
 		  {
-		  	  case ACCELERATION:
-		  		  //rx_data[0]
-		  		  frame = VEERING;
-		  		  continue;
-
-		  	  case VEERING:
-		  		  //rx_data[1]
-		  		  frame = LIGHTS;
+		  	  case MOTORS:
+		  		  	  DRV8835_Move(rx_data[ACCELERATION_VALUE], rx_data[VEER_VALUE]);
+					  frame = LIGHTS;
 		  		  continue;
 
 		  	  case LIGHTS:
-		  		  Lights_SetState(LIGHTS_GPIO_Port, LIGHTS_Pin, rx_data[LIGHTS_STATE]);
-		  		  frame = ACCELERATION;
+		  		  	  Lights_SetState(LIGHTS_GPIO_Port, LIGHTS_Pin, rx_data[LIGHTS_STATE]);
+		  		  	  frame = MOTORS;
 		  		  break;
 		  }
+		  sprintf(oled_message, "y:[%d] x:[%d] l:[%d]", rx_data[ACCELERATION_VALUE], rx_data[VEER_VALUE], rx_data[LIGHTS_STATE]);
+		  GFX_DrawString(0, 0, oled_message, WHITE, 0);
+		  SSD1306_Display();
+
+		  battery_voltage = Battery_GetVoltage();
+		  printf("Battery voltage =%.2f \r\n", battery_voltage);
+
 		  for(uint8_t i=0; i<MESSAGE_LENGTH; i++)
 			  printf("RX DATA: %d \t", rx_data[i]);
 		  printf("\n");
