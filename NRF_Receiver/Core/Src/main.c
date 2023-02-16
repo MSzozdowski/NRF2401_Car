@@ -32,8 +32,8 @@
 #include "SSD1306_OLED.h"
 #include "GFX_BW.h"
 #include "fonts/fonts.h"
-#include "lsm303dlhc.h"
 #include "drv8835.h"
+#include "lsm303dlhc.h"
 #include "clock.h"
 #include "frame.h"
 #include "putchar.h"
@@ -73,14 +73,20 @@ char oled_message[32];
 
 double battery_voltage;
 
+int16_t acc_x;
+int16_t acc_y;
+int16_t acc_z;
 
+int16_t mag_x;
+int16_t mag_y;
+int16_t mag_z;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
-
+void Scan_I2C();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -133,10 +139,14 @@ int main(void)
 
   Battery_Init(&hadc1, ADC_CHANNEL_10);
 
+  LSM303DLHC_Init(&hi2c2);
+
   SSD1306_Init(&hi2c2);
   GFX_SetFont(font_8x5);
   SSD1306_Clear(BLACK);
   SSD1306_Display();
+
+  //Scan_I2C();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -149,7 +159,8 @@ int main(void)
 		  switch(frame)
 		  {
 		  	  case MOTORS:
-		  		  	  DRV8835_Move(rx_data[ACCELERATION_VALUE], rx_data[VEER_VALUE]);
+		  		  	  //DRV8835_Move(rx_data[ACCELERATION_VALUE], rx_data[VEER_VALUE]);
+		  		  	  DRV8835_Move(128, 128);
 					  frame = LIGHTS;
 		  		  continue;
 
@@ -168,6 +179,16 @@ int main(void)
 		  for(uint8_t i=0; i<MESSAGE_LENGTH; i++)
 			  printf("RX DATA: %d \t", rx_data[i]);
 		  printf("\n");
+
+		  LSM303DLHC_Read_Acc_Data(&acc_x, &acc_y, &acc_z);
+		  LSM303DLHC_Read_Mag_Data(&mag_x, &mag_y, &mag_x);
+
+		  printf("acc_x = %d \r\n", acc_x);
+		  printf("acc_y = d%\r\n", acc_y);
+		  printf("acc_z =%d \r\n", acc_z);
+		  printf("mag_x = %d\r\n", mag_x);
+		  printf("mag_y = d%\r\n", mag_y);
+		  printf("mag_z =%d \r\n", mag_z);
 		  NRF_ReceiveNextMessage();
 	  }
     /* USER CODE END WHILE */
@@ -234,7 +255,32 @@ static void MX_NVIC_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void Scan_I2C()
+{
+	printf("Scanning I2C bus:\r\n");
+	HAL_StatusTypeDef result;
+	uint8_t i;
+	for (i=1; i<128; i++)
+	{
+		/*
+		* the HAL wants a left aligned i2c address
+		* &hi2c1 is the handle
+		* (uint16_t)(i<<1) is the i2c address left aligned
+		* retries 2
+		* timeout 2
+		*/
+		result = HAL_I2C_IsDeviceReady(&hi2c2, (uint16_t)(i<<1), 2, 2);
+		if (result != HAL_OK) // HAL_ERROR or HAL_BUSY or HAL_TIMEOUT
+		{
+		  printf("."); // No ACK received at that address
+		}
+		if (result == HAL_OK)
+		{
+		  printf("0x%X", i); // Received an ACK at that address
+		}
+	}
+	printf("\r\n");
+}
 /* USER CODE END 4 */
 
 /**
