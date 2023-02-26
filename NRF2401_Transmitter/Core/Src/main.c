@@ -26,10 +26,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stdio.h"
+
 #include "NRF2401/nrf2401.h"
 #include "clock.h"
-#include "stdio.h"
 #include "joystick.h"
+#include "button.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,7 +42,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-#define MESSAGE_LENGTH 2
+#define MESSAGE_LENGTH 3
 
 /* USER CODE END PD */
 
@@ -52,8 +54,10 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-T_Joystick Acceleration;
 T_Joystick Direction;
+T_Joystick Veer;
+
+T_Button LightBtn;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -117,8 +121,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
   Clock_Init(&htim1);
   NRF_Init(&hspi1, 't');
-  JoystickInit(&Acceleration, &hadc1, ADC_CHANNEL_8);
-  JoystickInit(&Direction, &hadc1, ADC_CHANNEL_4);
+  Joystick_Init(&Direction, &hadc1, ADC_CHANNEL_4);
+  Joystick_Init(&Veer, &hadc1, ADC_CHANNEL_8);
+  Button_Init(&LightBtn, B1_GPIO_Port, B1_Pin);
 
   uint8_t i = 0;
   uint8_t tx_data[MESSAGE_LENGTH];
@@ -130,11 +135,13 @@ int main(void)
   while (1)
   {
 	  NRF_process(tx_data, MESSAGE_LENGTH);
+	  Button_Process(&LightBtn);
 	  if(HAL_GetTick() - last_tick >= 1000)
 	  {
-		  tx_data[0] = Joystick_GetValue(&Acceleration);
-		  tx_data[1] = Joystick_GetValue(&Direction);
-		  printf("acceleration = %d \t direction = %d  \r\n", tx_data[0], tx_data[1]);
+		  tx_data[0] = Joystick_GetValue(&Direction);
+		  tx_data[1] = Joystick_GetValue(&Veer);
+		  tx_data[2] = Button_IsPressed(&LightBtn);
+		  printf("direction = %d \t veer = %d  \t button = %d \r\n", tx_data[0], tx_data[1], tx_data[2]);
 		  i++;
 		  i%=5;
 		  last_tick = HAL_GetTick();

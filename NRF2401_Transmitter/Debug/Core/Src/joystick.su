@@ -1,0 +1,4 @@
+../Core/Src/joystick.c:12:6:Joystick_Init	24	static
+../Core/Src/joystick.c:18:6:Joystick_SetChannel	32	static
+../Core/Src/joystick.c:30:10:Joystick_GetValue	24	static
+../Core/Src/joystick.c:39:9:Joystick_Map	16	static
