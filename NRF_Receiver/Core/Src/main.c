@@ -146,7 +146,7 @@ int main(void)
   SSD1306_Clear(BLACK);
   SSD1306_Display();
 
-  Scan_I2C();
+  //Scan_I2C();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -180,15 +180,15 @@ int main(void)
 			  printf("RX DATA: %d \t", rx_data[i]);
 		  printf("\n");
 
-		  //LSM303DLHC_Read_Acc_Data(&acc_x, &acc_y, &acc_z);
-		  //LSM303DLHC_Read_Mag_Data(&mag_x, &mag_y, &mag_x);
+		  LSM303DLHC_Read_Acc_Data(&acc_x, &acc_y, &acc_z);
+		  LSM303DLHC_Read_Mag_Data(&mag_x, &mag_y, &mag_x);
 
-		  //printf("acc_x = %d \r\n", acc_x);
-		  //printf("acc_y = d% \r\n", acc_y);
-		  //printf("acc_z =%d \r\n", acc_z);
-		  //printf("mag_x = %d\r\n", mag_x);
-		  //printf("mag_y = d% \r\n", mag_y);
-		  //printf("mag_z =%d \r\n", mag_z);
+		  printf("acc_x = %d \r\n", acc_x);
+		  printf("acc_y = d%\r\n", acc_y);
+		  printf("acc_z =%d \r\n", acc_z);
+		  printf("mag_x = %d\r\n", mag_x);
+		  printf("mag_y = d%\r\n", mag_y);
+		  printf("mag_z =%d \r\n", mag_z);
 		  NRF_ReceiveNextMessage();
 	  }
     /* USER CODE END WHILE */

@@ -33,7 +33,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Core/Inc/adc.h ../Core/Inc/main.h ../Core/Inc/spi.h ../Core/Inc/tim.h \
  ../Core/Inc/usart.h ../Core/Inc/gpio.h ../Core/Inc/NRF2401/nrf2401.h \
- ../Core/Inc/clock.h ../Core/Inc/joystick.h ../Core/Inc/button.h
+ ../Core/Inc/clock.h ../Core/Inc/joystick.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -76,4 +76,3 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/NRF2401/nrf2401.h:
 ../Core/Inc/clock.h:
 ../Core/Inc/joystick.h:
-../Core/Inc/button.h:

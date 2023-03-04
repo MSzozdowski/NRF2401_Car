@@ -1,5 +1,4 @@
 "./Core/Src/adc.o"
-"./Core/Src/button.o"
 "./Core/Src/clock.o"
 "./Core/Src/gpio.o"
 "./Core/Src/joystick.o"
