@@ -180,7 +180,7 @@ int main(void)
 			  printf("RX DATA: %d \t", rx_data[i]);
 		  printf("\n");
 
-		  LSM303DLHC_Read_Acc_Data(&acc_x, &acc_y, &acc_z);
+		  /*LSM303DLHC_Read_Acc_Data(&acc_x, &acc_y, &acc_z);
 		  LSM303DLHC_Read_Mag_Data(&mag_x, &mag_y, &mag_x);
 
 		  printf("acc_x = %d \r\n", acc_x);
@@ -188,7 +188,7 @@ int main(void)
 		  printf("acc_z =%d \r\n", acc_z);
 		  printf("mag_x = %d\r\n", mag_x);
 		  printf("mag_y = d%\r\n", mag_y);
-		  printf("mag_z =%d \r\n", mag_z);
+		  printf("mag_z =%d \r\n", mag_z);*/
 		  NRF_ReceiveNextMessage();
 	  }
     /* USER CODE END WHILE */
