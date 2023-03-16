@@ -33,7 +33,7 @@
 #include "GFX_BW.h"
 #include "fonts/fonts.h"
 #include "drv8835.h"
-#include "lsm303dlhc.h"
+//#include "lsm303dlhc.h"
 #include "clock.h"
 #include "frame.h"
 #include "putchar.h"
@@ -139,14 +139,14 @@ int main(void)
 
   Battery_Init(&hadc1, ADC_CHANNEL_10);
 
-  LSM303DLHC_Init(&hi2c2);
+  //LSM303DLHC_Init(&hi2c2);
 
   SSD1306_Init(&hi2c2);
   GFX_SetFont(font_8x5);
   SSD1306_Clear(BLACK);
   SSD1306_Display();
 
-  //Scan_I2C();
+  Scan_I2C();
   /* USER CODE END 2 */
 
   /* Infinite loop */
