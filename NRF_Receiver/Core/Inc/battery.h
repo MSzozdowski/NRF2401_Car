@@ -9,6 +9,6 @@
 #define INC_BATTERY_H_
 
 void Battery_Init(ADC_HandleTypeDef* adc, uint32_t AdcChannel);
-double Battery_GetVoltage();
+double Battery_GetVoltage(void);
 
 #endif /* INC_BATTERY_H_ */

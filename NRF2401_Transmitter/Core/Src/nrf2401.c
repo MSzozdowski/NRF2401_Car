@@ -68,6 +68,8 @@ static void NRF_ReadRXPaylaod(uint8_t *data);
 
 static uint8_t NRF_DataAvailable(void);
 
+static void NRF_ClearRetransmissionFlag(void);
+
 static void NRF_BufferCopy(uint8_t *buffer);
 
 void NRF_Init(SPI_HandleTypeDef *hspi, char mode)
@@ -127,8 +129,6 @@ void NRF_process(uint8_t* message, uint8_t message_length)
 		lastTick100us = Clock_GetTick();
 		if(nrf_mode == 't')
 		{
-			//uint8_t message_length = sprintf((char *) tx_buffer, "%d", message);
-
 			if(message_length != NRF24_PAYLOAD_SIZE)
 				NRF_Faults = NRF_DIFFRENT_MESSAGE_SIZE;
 			else
@@ -201,6 +201,9 @@ void NRF_process(uint8_t* message, uint8_t message_length)
 
 				case NRF_MAX_RETRANSMITS_FLAG:
 					printf("NRF_MAX_RETRANSMITS_FLAG \r\n");
+					NRF_ClearRetransmissionFlag();
+					NRF_State = NRF_TX_MODE;
+					NRF_Faults = NRF_NO_ERROR;
 					break;
 
 				case NRF_TX_FIFO_FULL:
@@ -477,6 +480,13 @@ static uint8_t NRF_DataAvailable(void)
 		return 1;
 	}
 	return 0;
+}
+
+static void NRF_ClearRetransmissionFlag(void)
+{
+	uint8_t status = NRF_ReadStatusRegister();
+	status |= (1 << NRF24_MAX_RT);
+	NRF_WriteStatusRegister(status);
 }
 
 static void NRF_BufferCopy(uint8_t* buffer)

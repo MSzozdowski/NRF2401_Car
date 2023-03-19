@@ -7,8 +7,10 @@
 
 #include "main.h"
 #include "button.h"
+#include "stdio.h"
 
 #define DEBOUNCE_TIME 20
+
 
 static GPIO_PinState Button_ReadPin(T_Button *Button)
 {
@@ -51,8 +53,10 @@ void Button_Process(T_Button *Button)
 
 uint8_t Button_IsPressed(T_Button *Button)
 {
-	if((Button->state) == PRESSED)
+	if(Button->state == PRESSED)
+	{
 		return 1;
+	}
 	else
 		return 0;
 }

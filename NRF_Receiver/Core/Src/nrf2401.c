@@ -72,10 +72,7 @@ static uint8_t NRF_DataAvailable(void);
 
 uint8_t NRF_IsMessageReceived(void)
 {
-	if(message_received)
-		return 1;
-	else
-		return 0;
+	return message_received;
 }
 
 void NRF_ReceiveNextMessage()
@@ -195,12 +192,8 @@ void NRF_process(uint8_t* message)
 		{
 			NRF_ReadRXPaylaod(rx_buffer);
 			for(uint8_t i = 0; i < NRF24_PAYLOAD_SIZE; i++)
-			{
-				//printf("Received message: %d \t", rx_buffer[i]);
 				message[i] = rx_buffer[i];
-			}
 			message_received = 1;
-			//printf("\n");
 		}
 		break;
 

@@ -20,6 +20,7 @@
 #include "main.h"
 #include "adc.h"
 #include "i2c.h"
+#include "iwdg.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -33,12 +34,12 @@
 #include "GFX_BW.h"
 #include "fonts/fonts.h"
 #include "drv8835.h"
-//#include "lsm303dlhc.h"
 #include "clock.h"
 #include "frame.h"
 #include "putchar.h"
 #include "lights.h"
 #include "battery.h"
+#include "watchdog.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -55,6 +56,7 @@
 #define VEER_VALUE 1
 #define LIGHTS_STATE 2
 
+#define INTERLINE 10
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -73,13 +75,7 @@ char oled_message[32];
 
 double battery_voltage;
 
-int16_t acc_x;
-int16_t acc_y;
-int16_t acc_z;
-
-int16_t mag_x;
-int16_t mag_y;
-int16_t mag_z;
+uint8_t line = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -128,20 +124,19 @@ int main(void)
   MX_I2C2_Init();
   MX_SPI1_Init();
   MX_TIM3_Init();
+  MX_IWDG_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
+  WDG_ResetInfo();
+
   Clock_Init(&htim1);
   NRF_Init(&hspi1, 'r');
-
   DRV8835_Init(&htim3, TIM_CHANNEL_1, TIM_CHANNEL_2);
-
   Battery_Init(&hadc1, ADC_CHANNEL_10);
-
-  //LSM303DLHC_Init(&hi2c2);
-
   SSD1306_Init(&hi2c2);
+
   GFX_SetFont(font_8x5);
   SSD1306_Clear(BLACK);
   SSD1306_Display();
@@ -169,28 +164,31 @@ int main(void)
 		  		  	  frame = MOTORS;
 		  		  break;
 		  }
-		  sprintf(oled_message, "y:[%d] x:[%d] l:[%d]", rx_data[ACCELERATION_VALUE], rx_data[VEER_VALUE], rx_data[LIGHTS_STATE]);
-		  GFX_DrawString(0, 0, oled_message, WHITE, 0);
-		  SSD1306_Display();
 
 		  battery_voltage = Battery_GetVoltage();
-		  printf("Battery voltage =%.2f \r\n", battery_voltage);
+
+		  sprintf(oled_message, "acceleration:[%d]", rx_data[ACCELERATION_VALUE]);
+		  GFX_DrawString(0, line, oled_message, WHITE, 0);
+
+		  sprintf(oled_message, "veer:[%d]", rx_data[VEER_VALUE]);
+		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
+
+		  sprintf(oled_message, "lights:[%d]", rx_data[LIGHTS_STATE]);
+		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
+
+		  sprintf(oled_message, "Vbat = %.2f", battery_voltage);
+		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
+
+		  line = 0;
+		  SSD1306_Display();
 
 		  for(uint8_t i=0; i<MESSAGE_LENGTH; i++)
 			  printf("RX DATA: %d \t", rx_data[i]);
 		  printf("\n");
 
-		  /*LSM303DLHC_Read_Acc_Data(&acc_x, &acc_y, &acc_z);
-		  LSM303DLHC_Read_Mag_Data(&mag_x, &mag_y, &mag_x);
-
-		  printf("acc_x = %d \r\n", acc_x);
-		  printf("acc_y = d%\r\n", acc_y);
-		  printf("acc_z =%d \r\n", acc_z);
-		  printf("mag_x = %d\r\n", mag_x);
-		  printf("mag_y = d%\r\n", mag_y);
-		  printf("mag_z =%d \r\n", mag_z);*/
 		  NRF_ReceiveNextMessage();
 	  }
+	  WDG_Refresh(&hiwdg);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -214,10 +212,11 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSIDiv = RCC_HSI_DIV1;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV1;

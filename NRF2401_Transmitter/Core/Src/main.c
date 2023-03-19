@@ -32,7 +32,6 @@
 #include "clock.h"
 #include "joystick.h"
 #include "button.h"
-//#include "joystick.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,6 +58,9 @@ T_Joystick Direction;
 T_Joystick Veer;
 
 T_Button LightBtn;
+
+uint16_t AdcValueX;
+uint16_t AdcValueY;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -75,8 +77,6 @@ int __io_putchar(int ch)
     HAL_UART_Transmit(&huart2, (uint8_t*)&ch, 1, 1000);
     return 1;
 }
-
-//void SetChannel(uint32_t Channel);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -147,6 +147,7 @@ int main(void)
 		  i%=5;
 		  last_tick = HAL_GetTick();
 	  }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
