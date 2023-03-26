@@ -34,6 +34,7 @@
 #include "GFX_BW.h"
 #include "fonts/fonts.h"
 #include "drv8835.h"
+#include "lsm303dlhc.h"
 #include "clock.h"
 #include "frame.h"
 #include "putchar.h"
@@ -72,10 +73,12 @@ T_Frame frame = MOTORS;
 uint8_t rx_data[MESSAGE_LENGTH];
 
 char oled_message[32];
+uint8_t line = 0;
 
 double battery_voltage;
 
-uint8_t line = 0;
+
+float acc_x, acc_y, acc_z;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -135,13 +138,14 @@ int main(void)
   NRF_Init(&hspi1, 'r');
   DRV8835_Init(&htim3, TIM_CHANNEL_1, TIM_CHANNEL_2);
   Battery_Init(&hadc1, ADC_CHANNEL_10);
-  SSD1306_Init(&hi2c2);
+  LSM303DLHC_Init(&hi2c2);
 
+  SSD1306_Init(&hi2c2);
   GFX_SetFont(font_8x5);
   SSD1306_Clear(BLACK);
   SSD1306_Display();
 
-  Scan_I2C();
+  //Scan_I2C();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -166,7 +170,9 @@ int main(void)
 		  }
 
 		  battery_voltage = Battery_GetVoltage();
+		  LSM303DLHC_ReadValues(&acc_x, &acc_y, &acc_z);
 
+		  SSD1306_Clear(BLACK);
 		  sprintf(oled_message, "acceleration:[%d]", rx_data[ACCELERATION_VALUE]);
 		  GFX_DrawString(0, line, oled_message, WHITE, 0);
 
@@ -177,6 +183,12 @@ int main(void)
 		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
 
 		  sprintf(oled_message, "Vbat = %.2f", battery_voltage);
+		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
+
+		  sprintf(oled_message, "X %4s Y %4s Z", "", "");
+		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
+
+		  sprintf(oled_message, "%.2f | %.2f | %.2f", acc_x, acc_y, acc_z);
 		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
 
 		  line = 0;
