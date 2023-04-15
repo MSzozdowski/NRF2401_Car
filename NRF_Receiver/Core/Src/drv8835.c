@@ -8,8 +8,6 @@
 #include "main.h"
 #include "drv8835.h"
 #include "tim.h"
-#include "stdio.h"
-#include <stdlib.h>
 
 TIM_HandleTypeDef *pwm_tim;
 
@@ -73,71 +71,61 @@ static void DRV8835_RunLeftMotor(uint8_t direction, uint8_t speed)
 
 void DRV8835_Move(uint8_t direction, uint8_t veer)
 {
-	//printf("direction: %d veer:%d ", direction, veer);
-	if(direction > 127) //forward
+	if(direction > 128) //forward
 	{
-		if(veer > 127) //forward right
-		{
-			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - 127 - (veer-127)/2);
-			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - 127);
-			//printf("forward right R:%d L:%d ", direction - 127 - (veer-127)/2,  direction - 127);
-		}
-		else if(veer < 127) //forward left
+		if(veer > 128) //forward right
 		{
 
-			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - 127);
-			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - 127 - abs((veer-127)/2));
-			//printf("forward left R:%d L:%d ", direction - 127, direction - 127 - abs((veer-127)/2));
+			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - 128 - (veer-128)/2);
+			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - 128);
+		}
+		else if(veer < 128) //forward left
+		{
+
+			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - 128);
+			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - 128 - (veer-128)/2);
 		}
 		else //forward
 		{
 
-			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - 127);
-			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - 127);
-			//printf("forward R:%d L:%d ",direction - 127, direction - 127);
+			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - 128);
+			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - 128);
 		}
 	}
-	else if(direction < 127) //backward
+	else if(direction < 128) //backward
 	{
-		if(veer > 127) //backward right
+		if(veer > 128) //backward right
 		{
-			DRV8835_RunRightMotor(DRV8835_BACKWARD, 127 - direction - (veer-127)/2);
-			DRV8835_RunLeftMotor(DRV8835_BACKWARD, 127 - direction);
-			//printf("backward right R:%d L:%d ", 127 - direction - (veer-127)/2,  127 - direction);
+			DRV8835_RunRightMotor(DRV8835_BACKWARD, 128 - direction - (veer-128)/2);
+			DRV8835_RunLeftMotor(DRV8835_BACKWARD, 128 - direction);
 		}
-		else if(veer < 127) //backward left
+		else if(veer < 128)
 		{
-			DRV8835_RunRightMotor(DRV8835_BACKWARD, 127 - direction);
-			DRV8835_RunLeftMotor(DRV8835_BACKWARD, 127 - direction - abs((veer-127)/2));
-			//printf("backward left R:%d L:%d ",  127 - direction, 127 - direction - abs((veer-127)/2));
+			DRV8835_RunRightMotor(DRV8835_BACKWARD, 128 - direction);
+			DRV8835_RunLeftMotor(DRV8835_BACKWARD, 128 - direction - (veer-128)/2);
 		}
 		else
 		{
-			DRV8835_RunRightMotor(DRV8835_BACKWARD, 127 - direction);
-			DRV8835_RunLeftMotor(DRV8835_BACKWARD, 127 - direction);
-			//printf("backward R:%d L:%d ",  127 - direction, 127 - direction);
+			DRV8835_RunRightMotor(DRV8835_BACKWARD, 128 - direction);
+			DRV8835_RunLeftMotor(DRV8835_BACKWARD, 128 - direction);
 		}
 	}
 	else //stay
 	{
-		if(veer > 127)
+		if(veer > 128)
 		{
 			DRV8835_RunRightMotor(DRV8835_FORWARD, 0);
 			DRV8835_RunLeftMotor(DRV8835_FORWARD, veer - 128);
-			//printf("stay right R:%d L:%d ",  0, veer - 128);
 		}
-		else if(veer < 127)
+		else if(veer < 128)
 		{
 			DRV8835_RunRightMotor(DRV8835_FORWARD, veer - 128);
 			DRV8835_RunLeftMotor(DRV8835_FORWARD, 0);
-			//printf("stay left R:%d L:%d ", veer - 128, 0);
 		}
 		else
 		{
 			DRV8835_RunRightMotor(DRV8835_FORWARD, 0);
 			DRV8835_RunLeftMotor(DRV8835_FORWARD, 0);
-			//printf("stayR:%d L:%d ", 0, 0);
 		}
 	}
-	//printf("\n");
 }

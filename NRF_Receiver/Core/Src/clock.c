@@ -28,6 +28,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim == clock_tim)
 	{
+		//HAL_GPIO_TogglePin(TEST_OUT_GPIO_Port, TEST_OUT_Pin);
 		tick+=100;
 	}
 }

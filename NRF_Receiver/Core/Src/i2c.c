@@ -38,7 +38,7 @@ void MX_I2C2_Init(void)
 
   /* USER CODE END I2C2_Init 1 */
   hi2c2.Instance = I2C2;
-  hi2c2.Init.Timing = 0x00300B29;
+  hi2c2.Init.Timing = 0x10707DBC;
   hi2c2.Init.OwnAddress1 = 0;
   hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -64,10 +64,6 @@ void MX_I2C2_Init(void)
   {
     Error_Handler();
   }
-
-  /** I2C Fast mode Plus enable
-  */
-  HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C2);
   /* USER CODE BEGIN I2C2_Init 2 */
 
   /* USER CODE END I2C2_Init 2 */

@@ -37,5 +37,5 @@ typedef enum{
 
 void NRF_Init(SPI_HandleTypeDef *hspi, char mode);
 void NRF_process(uint8_t* message, uint8_t message_length);
-void NRF_SendMessage(void);
+
 #endif /* INC_NRF2401_NRF2401_H_ */
