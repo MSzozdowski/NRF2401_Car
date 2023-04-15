@@ -126,7 +126,9 @@ int main(void)
   Joystick_Init(&Veer, &hadc1, ADC_CHANNEL_8);
   Button_Init(&LightBtn, B1_GPIO_Port, B1_Pin);
 
-  uint8_t i = 0;
+  uint16_t frames_per_second = 0;
+  uint32_t frames_tick = HAL_GetTick();
+
   uint8_t tx_data[MESSAGE_LENGTH];
   uint32_t last_tick = HAL_GetTick();
   /* USER CODE END 2 */
@@ -135,18 +137,29 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+	  if(HAL_GetTick() - frames_tick >= 1000)
+	  {
+		  printf("Frames per second =%d \n", frames_per_second);
+		  frames_tick = HAL_GetTick();
+		  frames_per_second = 0;
+	  }
+
+
 	  NRF_process(tx_data, MESSAGE_LENGTH);
 	  Button_Process(&LightBtn);
-	  if(HAL_GetTick() - last_tick >= 1000)
+	  if(HAL_GetTick() - last_tick >= 25)
 	  {
 		  tx_data[0] = Joystick_GetValue(&Direction);
 		  tx_data[1] = Joystick_GetValue(&Veer);
-		  tx_data[2] = Button_IsPressed(&LightBtn);
-		  printf("direction = %d \t veer = %d  \t button = %d \r\n", tx_data[0], tx_data[1], tx_data[2]);
-		  i++;
-		  i%=5;
+		  tx_data[2] = Button_Toggle(&LightBtn);
+		  //printf("direction = %d \t veer = %d  \t button = %d \r\n", tx_data[0], tx_data[1], tx_data[2]);
+		  frames_per_second++;
 		  last_tick = HAL_GetTick();
+		  NRF_SendMessage();
 	  }
+
+
 
     /* USER CODE END WHILE */
 

@@ -11,7 +11,6 @@
 
 #define DEBOUNCE_TIME 20
 
-
 static GPIO_PinState Button_ReadPin(T_Button *Button)
 {
 	return HAL_GPIO_ReadPin(Button->GpioPort, Button->GpioPin);
@@ -22,6 +21,7 @@ void Button_Init(T_Button *Button, GPIO_TypeDef *GpioPort, uint16_t GpioPin)
 	Button->state = IDLE;
 	Button->GpioPort = GpioPort;
 	Button->GpioPin = GpioPin;
+	Button->button_toggle = 0;
 }
 
 void Button_Process(T_Button *Button)
@@ -39,7 +39,10 @@ void Button_Process(T_Button *Button)
 		if(HAL_GetTick() - (Button->last_tick) > DEBOUNCE_TIME)
 		{
 			if(Button_ReadPin(Button) == GPIO_PIN_RESET)
+			{
+				Button->button_toggle = !(Button->button_toggle);
 				Button->state = PRESSED;
+			}
 			else
 				Button->state = IDLE;
 		}
@@ -51,12 +54,8 @@ void Button_Process(T_Button *Button)
 	}
 }
 
-uint8_t Button_IsPressed(T_Button *Button)
+uint8_t Button_Toggle(T_Button *Button)
 {
-	if(Button->state == PRESSED)
-	{
-		return 1;
-	}
-	else
-		return 0;
+	return Button->button_toggle;
 }
+

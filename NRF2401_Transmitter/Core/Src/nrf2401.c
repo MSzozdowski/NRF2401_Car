@@ -22,6 +22,8 @@ uint8_t rx_buffer[NRF24_PAYLOAD_SIZE];
 
 uint32_t lastTick100us, last_tick;
 
+static uint8_t message_to_send = 0;
+
 char nrf_mode;
 
 static uint8_t addr_p0_backup[NRF24_ADD_WIDTH];
@@ -134,7 +136,10 @@ void NRF_process(uint8_t* message, uint8_t message_length)
 			else
 				NRF_BufferCopy(message);
 
-			NRF_TXPayload(tx_buffer);
+			if(message_to_send)
+				NRF_TXPayload(tx_buffer);
+			else
+				break;
 
 			NRF_CE_HIGH
 			NRF_State = NRF_TX_SETTING;
@@ -166,9 +171,10 @@ void NRF_process(uint8_t* message, uint8_t message_length)
 		if(status & (1 << NRF24_TX_FULL))
 			NRF_Faults = NRF_TX_FIFO_FULL;
 
-		if((HAL_GetTick() - last_tick >= 1000) && (status & (1 << NRF24_TX_DS)) && (fifo_status & (1 << NRF24_TX_EMPTY)))
+		if((HAL_GetTick() - last_tick >= 4) || ((status & (1 << NRF24_TX_DS)) && (fifo_status & (1 << NRF24_TX_EMPTY))))
 		{
-			printf("Correct transmission \r\n");
+			//printf("Correct transmission \r\n");
+			message_to_send = 0;
 			NRF_CE_LOW
 			NRF_State = NRF_STANBY1;
 		}
@@ -201,13 +207,17 @@ void NRF_process(uint8_t* message, uint8_t message_length)
 
 				case NRF_MAX_RETRANSMITS_FLAG:
 					printf("NRF_MAX_RETRANSMITS_FLAG \r\n");
-					NRF_ClearRetransmissionFlag();
-					NRF_State = NRF_TX_MODE;
+					NRF_FlushTX();
+					//NRF_ClearRetransmissionFlag();
+					NRF_State = NRF_STANBY1;
 					NRF_Faults = NRF_NO_ERROR;
 					break;
 
 				case NRF_TX_FIFO_FULL:
 					printf("NRF_TX_FIFO_FULL \r\n");
+					NRF_FlushTX();
+					NRF_State = NRF_STANBY1;
+					NRF_Faults = NRF_NO_ERROR;
 					break;
 
 				default:
@@ -480,6 +490,11 @@ static uint8_t NRF_DataAvailable(void)
 		return 1;
 	}
 	return 0;
+}
+
+void NRF_SendMessage(void)
+{
+	message_to_send = 1;
 }
 
 static void NRF_ClearRetransmissionFlag(void)
