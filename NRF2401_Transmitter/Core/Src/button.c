@@ -9,6 +9,7 @@
 #include "button.h"
 #include "stdio.h"
 
+
 #define DEBOUNCE_TIME 20
 
 
@@ -22,6 +23,7 @@ void Button_Init(T_Button *Button, GPIO_TypeDef *GpioPort, uint16_t GpioPin)
 	Button->state = IDLE;
 	Button->GpioPort = GpioPort;
 	Button->GpioPin = GpioPin;
+	Button->switch_status = 0;
 }
 
 void Button_Process(T_Button *Button)
@@ -39,7 +41,11 @@ void Button_Process(T_Button *Button)
 		if(HAL_GetTick() - (Button->last_tick) > DEBOUNCE_TIME)
 		{
 			if(Button_ReadPin(Button) == GPIO_PIN_RESET)
+			{
 				Button->state = PRESSED;
+				Button->switch_status = !(Button->switch_status);
+			}
+
 			else
 				Button->state = IDLE;
 		}
@@ -51,12 +57,7 @@ void Button_Process(T_Button *Button)
 	}
 }
 
-uint8_t Button_IsPressed(T_Button *Button)
+uint8_t Button_GetSwitchStatus(T_Button *Button)
 {
-	if(Button->state == PRESSED)
-	{
-		return 1;
-	}
-	else
-		return 0;
+	return Button->switch_status;
 }

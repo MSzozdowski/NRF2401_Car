@@ -141,7 +141,7 @@ int main(void)
 	  {
 		  tx_data[0] = Joystick_GetValue(&Direction);
 		  tx_data[1] = Joystick_GetValue(&Veer);
-		  tx_data[2] = Button_IsPressed(&LightBtn);
+		  tx_data[2] = Button_GetSwitchStatus(&LightBtn);
 		  printf("direction = %d \t veer = %d  \t button = %d \r\n", tx_data[0], tx_data[1], tx_data[2]);
 		  i++;
 		  i%=5;

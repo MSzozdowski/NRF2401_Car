@@ -1,4 +1,4 @@
-../Core/Src/button.c:15:22:Button_ReadPin	16	static
-../Core/Src/button.c:20:6:Button_Init	24	static
-../Core/Src/button.c:27:6:Button_Process	16	static
-../Core/Src/button.c:54:9:Button_IsPressed	16	static
+../Core/Src/button.c:16:22:Button_ReadPin	16	static
+../Core/Src/button.c:21:6:Button_Init	24	static
+../Core/Src/button.c:29:6:Button_Process	16	static
+../Core/Src/button.c:60:9:Button_GetSwitchStatus	16	static
