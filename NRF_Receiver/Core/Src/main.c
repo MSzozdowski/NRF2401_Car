@@ -162,8 +162,7 @@ int main(void)
 		  switch(frame)
 		  {
 		  	  case MOTORS:
-		  		  	  //DRV8835_Move(rx_data[ACCELERATION_VALUE], rx_data[VEER_VALUE]);
-		  		  	  DRV8835_Move(128, 128);
+		  		  	  DRV8835_Move(rx_data[ACCELERATION_VALUE], rx_data[VEER_VALUE]);
 					  frame = LIGHTS;
 		  		  continue;
 
