@@ -32,6 +32,7 @@
 //
 #define NRF_START_UP_TIME 2000
 #define NRF_SETTING_TIME 200
+#define BITRATE_INTERVAL 1000
 //
 // Registers
 //

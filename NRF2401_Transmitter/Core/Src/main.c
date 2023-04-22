@@ -135,14 +135,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  NRF_process(tx_data, MESSAGE_LENGTH);
+	  NRF_process();
 	  Button_Process(&LightBtn);
-	  if(HAL_GetTick() - last_tick >= 1000)
+	  if(HAL_GetTick() - last_tick >= 25)
 	  {
 		  tx_data[0] = Joystick_GetValue(&Direction);
 		  tx_data[1] = Joystick_GetValue(&Veer);
 		  tx_data[2] = Button_GetSwitchStatus(&LightBtn);
-		  printf("direction = %d \t veer = %d  \t button = %d \r\n", tx_data[0], tx_data[1], tx_data[2]);
+		  NRF_SendMessage(tx_data, MESSAGE_LENGTH);
+		  //printf("direction = %d \t veer = %d  \t button = %d \r\n", tx_data[0], tx_data[1], tx_data[2]);
 		  i++;
 		  i%=5;
 		  last_tick = HAL_GetTick();

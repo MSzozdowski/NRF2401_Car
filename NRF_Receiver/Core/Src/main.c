@@ -58,6 +58,8 @@
 #define LIGHTS_STATE 2
 
 #define INTERLINE 10
+
+#define DISPLAY_REFRESH_INTERVAL 1000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -145,6 +147,8 @@ int main(void)
   SSD1306_Clear(BLACK);
   SSD1306_Display();
 
+  uint32_t display_tick = HAL_GetTick();
+  uint8_t message_received = 0;
   //Scan_I2C();
   /* USER CODE END 2 */
 
@@ -169,35 +173,44 @@ int main(void)
 		  		  break;
 		  }
 
-		  battery_voltage = Battery_GetVoltage();
-		  LSM303DLHC_ReadValues(&acc_x, &acc_y, &acc_z);
+		  if(HAL_GetTick() - display_tick > DISPLAY_REFRESH_INTERVAL)
+		  {
+			  battery_voltage = Battery_GetVoltage();
+			  LSM303DLHC_ReadValues(&acc_x, &acc_y, &acc_z);
 
-		  SSD1306_Clear(BLACK);
-		  sprintf(oled_message, "acceleration:[%d]", rx_data[ACCELERATION_VALUE]);
-		  GFX_DrawString(0, line, oled_message, WHITE, 0);
+			  SSD1306_Clear(BLACK);
+			  sprintf(oled_message, "acceleration:[%d]", rx_data[ACCELERATION_VALUE]);
+			  GFX_DrawString(0, line, oled_message, WHITE, 0);
 
-		  sprintf(oled_message, "veer:[%d]", rx_data[VEER_VALUE]);
-		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
+			  sprintf(oled_message, "veer:[%d]", rx_data[VEER_VALUE]);
+			  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
 
-		  sprintf(oled_message, "lights:[%d]", rx_data[LIGHTS_STATE]);
-		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
+			  sprintf(oled_message, "lights:[%d]", rx_data[LIGHTS_STATE]);
+			  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
 
-		  sprintf(oled_message, "Vbat = %.2f", battery_voltage);
-		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
+			  sprintf(oled_message, "Vbat = %.2f", battery_voltage);
+			  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
 
-		  sprintf(oled_message, "X %4s Y %4s Z", "", "");
-		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
+			  sprintf(oled_message, "X %4s Y %4s Z", "", "");
+			  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
 
-		  sprintf(oled_message, "%.2f | %.2f | %.2f", acc_x, acc_y, acc_z);
-		  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
+			  sprintf(oled_message, "%.2f | %.2f | %.2f", acc_x, acc_y, acc_z);
+			  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
 
-		  line = 0;
-		  SSD1306_Display();
+			  line = 0;
+			  SSD1306_Display();
 
-		  for(uint8_t i=0; i<MESSAGE_LENGTH; i++)
-			  printf("RX DATA: %d \t", rx_data[i]);
-		  printf("\n");
+			  display_tick = HAL_GetTick();
+			  printf("Message received per second %d \r\n", message_received);
+			  message_received = 0;
 
+		  }
+
+
+		  //for(uint8_t i=0; i<MESSAGE_LENGTH; i++)
+			//  printf("RX DATA: %d \t", rx_data[i]);
+		  //printf("\n");
+		  message_received++;
 		  NRF_ReceiveNextMessage();
 	  }
 	  WDG_Refresh(&hiwdg);

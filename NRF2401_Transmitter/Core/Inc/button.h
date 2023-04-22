@@ -25,7 +25,7 @@ typedef struct
 	uint16_t 		GpioPin;
 
 	uint32_t 		last_tick;
-	uint8_t switch_status;
+	bool switch_status;
 }T_Button;
 
 void Button_Init(T_Button *Button, GPIO_TypeDef *GpioPort, uint16_t GpioPin);

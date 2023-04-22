@@ -59,5 +59,5 @@ void Button_Process(T_Button *Button)
 
 uint8_t Button_GetSwitchStatus(T_Button *Button)
 {
-	return Button->switch_status;
+	return (uint8_t)Button->switch_status;
 }

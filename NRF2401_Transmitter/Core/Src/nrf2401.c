@@ -11,21 +11,28 @@
 #include "clock.h"
 #include "stdio.h"
 #include "string.h"
+#include "stdbool.h"
 
 SPI_HandleTypeDef *NRF_spi;
 
 NRF_State_t NRF_State = NRF_POWER_DOWN;
 NRF_Faults_t NRF_Faults = NRF_NO_ERROR;
 
-uint8_t tx_buffer[NRF24_PAYLOAD_SIZE /*+ 1*/];
-uint8_t rx_buffer[NRF24_PAYLOAD_SIZE];
+static uint8_t tx_buffer[NRF24_PAYLOAD_SIZE /*+ 1*/];
+static uint8_t rx_buffer[NRF24_PAYLOAD_SIZE];
 
-uint32_t lastTick100us, last_tick;
+static uint8_t message_length;
+static bool message_transmit = false;
 
-char nrf_mode;
+static uint32_t lastTick100us, last_tick, message_send_tick;
+
+uint8_t message_send_counter = 0;
+
+static char nrf_mode;
 
 static uint8_t addr_p0_backup[NRF24_ADD_WIDTH];
 
+static void NRF_CalculateBitrate(void);
 static void NRF_Read(uint8_t *Data, uint8_t Length);
 static void NRF_Write(uint8_t *Data, uint8_t Length);
 
@@ -70,7 +77,7 @@ static uint8_t NRF_DataAvailable(void);
 
 static void NRF_ClearRetransmissionFlag(void);
 
-static void NRF_BufferCopy(uint8_t *buffer);
+static void NRF_WriteDataToTXBuffer(uint8_t *buffer);
 
 void NRF_Init(SPI_HandleTypeDef *hspi, char mode)
 {
@@ -107,7 +114,7 @@ void NRF_Init(SPI_HandleTypeDef *hspi, char mode)
 		printf("No mode selected \r\n");
 }
 
-void NRF_process(uint8_t* message, uint8_t message_length)
+void NRF_process()
 {
 	if(NRF_Faults != NRF_NO_ERROR)
 		NRF_State = NRF_IDLE;
@@ -129,15 +136,24 @@ void NRF_process(uint8_t* message, uint8_t message_length)
 		lastTick100us = Clock_GetTick();
 		if(nrf_mode == 't')
 		{
-			if(message_length != NRF24_PAYLOAD_SIZE)
-				NRF_Faults = NRF_DIFFRENT_MESSAGE_SIZE;
+			if(message_transmit == true)
+			{
+				if(message_length == NRF24_PAYLOAD_SIZE)
+				{
+					NRF_TXPayload(tx_buffer);
+					NRF_CE_HIGH
+					NRF_State = NRF_TX_SETTING;
+				}
+				else
+				{
+					NRF_Faults = NRF_DIFFRENT_MESSAGE_SIZE;
+				}
+			}
 			else
-				NRF_BufferCopy(message);
-
-			NRF_TXPayload(tx_buffer);
-
-			NRF_CE_HIGH
-			NRF_State = NRF_TX_SETTING;
+			{
+				NRF_CE_LOW
+				NRF_State = NRF_STANBY1;
+			}
 		}
 		else if(nrf_mode == 'r')
 		{
@@ -166,12 +182,15 @@ void NRF_process(uint8_t* message, uint8_t message_length)
 		if(status & (1 << NRF24_TX_FULL))
 			NRF_Faults = NRF_TX_FIFO_FULL;
 
-		if((HAL_GetTick() - last_tick >= 1000) && (status & (1 << NRF24_TX_DS)) && (fifo_status & (1 << NRF24_TX_EMPTY)))
+		if((status & (1 << NRF24_TX_DS)) && (fifo_status & (1 << NRF24_TX_EMPTY)))
 		{
-			printf("Correct transmission \r\n");
+			message_send_counter++;
+			message_transmit = false; //already transmitted a packet
 			NRF_CE_LOW
 			NRF_State = NRF_STANBY1;
 		}
+
+		NRF_CalculateBitrate();
 		break;
 
 	case NRF_RX_SETTING:
@@ -188,7 +207,6 @@ void NRF_process(uint8_t* message, uint8_t message_length)
 		break;
 
 	case NRF_IDLE:
-			HAL_Delay(1000);
 			switch(NRF_Faults)
 			{
 				case NRF_NO_MODE:
@@ -208,11 +226,31 @@ void NRF_process(uint8_t* message, uint8_t message_length)
 
 				case NRF_TX_FIFO_FULL:
 					printf("NRF_TX_FIFO_FULL \r\n");
+					NRF_FlushTX();
+					NRF_State = NRF_TX_MODE;
+					NRF_Faults = NRF_NO_ERROR;
 					break;
 
 				default:
 				break;
 			}
+	}
+}
+
+void NRF_SendMessage(uint8_t* message, uint8_t message_len)
+{
+	NRF_WriteDataToTXBuffer(message);
+	message_length = message_len;
+	message_transmit = true;
+}
+
+static void NRF_CalculateBitrate(void)
+{
+	if(HAL_GetTick() - message_send_tick >= BITRATE_INTERVAL)
+	{
+		printf("Bitrate: %d messages per %d milliseconds \n", message_send_counter, BITRATE_INTERVAL);
+		message_send_tick = HAL_GetTick();
+		message_send_counter = 0;
 	}
 }
 
@@ -489,7 +527,7 @@ static void NRF_ClearRetransmissionFlag(void)
 	NRF_WriteStatusRegister(status);
 }
 
-static void NRF_BufferCopy(uint8_t* buffer)
+static void NRF_WriteDataToTXBuffer(uint8_t* buffer)
 {
 	for(uint8_t i = 0; i < NRF24_PAYLOAD_SIZE; i++)
 		tx_buffer[i] = buffer[i];
