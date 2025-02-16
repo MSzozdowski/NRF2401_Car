@@ -58,7 +58,7 @@ static void DRV8835_SetLeftMotorDirection(uint8_t direction)
 static void DRV8835_RunRightMotor(uint8_t direction, uint8_t speed)
 {
 	DRV8835_SetRightMotorDirection(direction);
-	if(speed > htim1.Init.Period) //should be set to 128
+	if(speed > htim1.Init.Period) //should be set to DRV8835_IDLE_MOTOR_VALUE
 		speed = htim1.Init.Period;
 	__HAL_TIM_SET_COMPARE(pwm_tim, right_channel_timer, speed);
 }
@@ -66,62 +66,62 @@ static void DRV8835_RunRightMotor(uint8_t direction, uint8_t speed)
 static void DRV8835_RunLeftMotor(uint8_t direction, uint8_t speed)
 {
 	DRV8835_SetLeftMotorDirection(direction);
-	if(speed > htim3.Init.Period) //should be set to 128
+	if(speed > htim3.Init.Period) //should be set to DRV8835_IDLE_MOTOR_VALUE
 		speed = htim3.Init.Period;
 	__HAL_TIM_SET_COMPARE(pwm_tim, left_channel_timer, speed);
 }
 
 void DRV8835_Move(uint8_t direction, uint8_t veer)
 {
-	if(direction > 128 + DRV8835_THRESHOLD) //forward
+	if(direction > DRV8835_IDLE_MOTOR_VALUE + DRV8835_THRESHOLD) //forward
 	{
-		if(veer > 128) //forward right
+		if(veer > DRV8835_IDLE_MOTOR_VALUE) //forward right
 		{
 
-			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - 128 - (veer-128)/2);
-			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - 128);
+			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - DRV8835_IDLE_MOTOR_VALUE - (veer-DRV8835_IDLE_MOTOR_VALUE)/1.75);
+			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - DRV8835_IDLE_MOTOR_VALUE);
 		}
-		else if(veer < 128) //forward left
+		else if(veer < DRV8835_IDLE_MOTOR_VALUE) //forward left
 		{
 
-			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - 128);
-			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - 128 - abs((veer-128)/2));
+			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - DRV8835_IDLE_MOTOR_VALUE);
+			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - DRV8835_IDLE_MOTOR_VALUE - abs((veer-DRV8835_IDLE_MOTOR_VALUE)/1.75));
 		}
 		else //forward
 		{
 
-			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - 128);
-			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - 128);
+			DRV8835_RunRightMotor(DRV8835_FORWARD, direction - DRV8835_IDLE_MOTOR_VALUE);
+			DRV8835_RunLeftMotor(DRV8835_FORWARD, direction - DRV8835_IDLE_MOTOR_VALUE);
 		}
 	}
-	else if(direction < 128 - DRV8835_THRESHOLD) //backward
+	else if(direction < DRV8835_IDLE_MOTOR_VALUE - DRV8835_THRESHOLD) //backward
 	{
-		if(veer > 128) //backward right
+		if(veer > DRV8835_IDLE_MOTOR_VALUE) //backward right
 		{
-			DRV8835_RunRightMotor(DRV8835_BACKWARD, 128 - direction - (veer-128)/2);
-			DRV8835_RunLeftMotor(DRV8835_BACKWARD, 128 - direction);
+			DRV8835_RunRightMotor(DRV8835_BACKWARD, DRV8835_IDLE_MOTOR_VALUE - direction - (veer-DRV8835_IDLE_MOTOR_VALUE)/1.75);
+			DRV8835_RunLeftMotor(DRV8835_BACKWARD, DRV8835_IDLE_MOTOR_VALUE - direction);
 		}
-		else if(veer < 128) //backward left
+		else if(veer < DRV8835_IDLE_MOTOR_VALUE) //backward left
 		{
-			DRV8835_RunRightMotor(DRV8835_BACKWARD, 128 - direction);
-			DRV8835_RunLeftMotor(DRV8835_BACKWARD, 128 - direction - abs((veer-128)/2));
+			DRV8835_RunRightMotor(DRV8835_BACKWARD, DRV8835_IDLE_MOTOR_VALUE - direction);
+			DRV8835_RunLeftMotor(DRV8835_BACKWARD, DRV8835_IDLE_MOTOR_VALUE - direction - abs((veer-DRV8835_IDLE_MOTOR_VALUE)/1.75));
 		}
 		else
 		{
-			DRV8835_RunRightMotor(DRV8835_BACKWARD, 128 - direction);
-			DRV8835_RunLeftMotor(DRV8835_BACKWARD, 128 - direction);
+			DRV8835_RunRightMotor(DRV8835_BACKWARD, DRV8835_IDLE_MOTOR_VALUE - direction);
+			DRV8835_RunLeftMotor(DRV8835_BACKWARD, DRV8835_IDLE_MOTOR_VALUE - direction);
 		}
 	}
 	else //stay
 	{
-		if(veer > 128 + DRV8835_THRESHOLD)
+		if(veer > DRV8835_IDLE_MOTOR_VALUE + DRV8835_THRESHOLD)
 		{
 			DRV8835_RunRightMotor(DRV8835_FORWARD, 0);
-			DRV8835_RunLeftMotor(DRV8835_FORWARD, veer - 128);
+			DRV8835_RunLeftMotor(DRV8835_FORWARD, veer - DRV8835_IDLE_MOTOR_VALUE);
 		}
-		else if(veer < 128 - DRV8835_THRESHOLD)
+		else if(veer < DRV8835_IDLE_MOTOR_VALUE - DRV8835_THRESHOLD)
 		{
-			DRV8835_RunRightMotor(DRV8835_FORWARD, 128 - veer);
+			DRV8835_RunRightMotor(DRV8835_FORWARD, DRV8835_IDLE_MOTOR_VALUE - veer);
 			DRV8835_RunLeftMotor(DRV8835_FORWARD, 0);
 		}
 		else

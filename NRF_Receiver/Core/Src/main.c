@@ -60,6 +60,7 @@
 #define INTERLINE 10
 
 #define DISPLAY_REFRESH_INTERVAL 1000
+#define NO_COMMUNICATION_INTERVAL 500
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -149,6 +150,8 @@ int main(void)
 
   uint32_t display_tick = HAL_GetTick();
   uint8_t message_received = 0;
+
+  uint32_t last_message_received_tick;
   //Scan_I2C();
   /* USER CODE END 2 */
 
@@ -187,7 +190,7 @@ int main(void)
 			  sprintf(oled_message, "lights:[%d]", rx_data[LIGHTS_STATE]);
 			  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
 
-			  sprintf(oled_message, "Vbat = %.2f", battery_voltage);
+			  sprintf(oled_message, "Vbat:%.2f RX msg:%d", battery_voltage, message_received);
 			  GFX_DrawString(0, line+=INTERLINE, oled_message, WHITE, 0);
 
 			  sprintf(oled_message, "X %4s Y %4s Z", "", "");
@@ -202,15 +205,16 @@ int main(void)
 			  display_tick = HAL_GetTick();
 			  printf("Message received per second %d \r\n", message_received);
 			  message_received = 0;
-
 		  }
-
-
-		  //for(uint8_t i=0; i<MESSAGE_LENGTH; i++)
-			//  printf("RX DATA: %d \t", rx_data[i]);
-		  //printf("\n");
+		  last_message_received_tick = HAL_GetTick();
 		  message_received++;
 		  NRF_ReceiveNextMessage();
+	  }
+	  if(HAL_GetTick() - last_message_received_tick > NO_COMMUNICATION_INTERVAL)
+	  {
+		  DRV8835_Move(128, 128);
+		  Lights_SetState(LIGHTS_GPIO_Port, LIGHTS_Pin, 0);
+		  last_message_received_tick = HAL_GetTick();
 	  }
 	  WDG_Refresh(&hiwdg);
     /* USER CODE END WHILE */

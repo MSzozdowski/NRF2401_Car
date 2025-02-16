@@ -16,7 +16,8 @@
 #define DRV8835_PHASE_MODE 0
 #define DRV8835_IN_MODE 1
 
-#define DRV8835_THRESHOLD 5
+#define DRV8835_IDLE_MOTOR_VALUE 127
+#define DRV8835_THRESHOLD 3
 
 void DRV8835_Init(TIM_HandleTypeDef *htim, uint64_t right_channel_pwm_timer, uint64_t left_channel_pwm_timer);
 void DRV8835_Move(uint8_t direction, uint8_t veer);
